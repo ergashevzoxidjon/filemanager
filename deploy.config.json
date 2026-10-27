@@ -1,0 +1,25 @@
+{
+  "project": "filemanager",
+  "local_path": "F:/AI/File manager",
+  "git": { "remote": "origin", "branch": "main", "url": "https://github.com/ergashevzoxidjon/filemanager.git" },
+
+  "stack": "php",
+  "method": "cpanel-git",
+
+  "server": {
+    "host": "",
+    "user": "",
+    "port": 22,
+    "key_path": "",
+    "password_env": "",
+    "remote_path": "~/public_html/filebot",
+    "app_root": ""
+  },
+
+  "exclude": [".git/", "config.env", "hub/config.php", "data/", "*.sqlite", "logs/", "__pycache__/", "*.log"],
+  "pre_deploy": ["php -l hub/hub.php"],
+  "backup": true,
+
+  "restart": { "type": "none", "path": "" },
+  "verify": { "url": "https://DOMEN/filebot/hub.php", "expect_status": 200, "expect_text": "OK" }
+}

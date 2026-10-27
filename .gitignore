@@ -1,0 +1,13 @@
+# Maxfiy sozlamalar - GitHub'ga chiqmasin
+config.env
+hub/config.php
+deploy.local.json
+
+# Ishlash davomida paydo bo'ladigan fayllar
+logs/
+data/
+hub/data/
+*.sqlite
+*.log
+__pycache__/
+*.pyc
