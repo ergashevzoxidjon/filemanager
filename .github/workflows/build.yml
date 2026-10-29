@@ -1,0 +1,84 @@
+# FileBot.exe ni yig'ish va Release chiqarish.
+# version.py dagi VERSION o'zgarib main'ga push qilinsa - yangi Release (vX.Y.Z) chiqadi.
+# Kompyuterlardagi botlar 6 soatda bir (yoki /yangilash bilan) shu Release'dan o'zini yangilaydi.
+name: FileBot build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*.py"
+      - "requirements.txt"
+      - "installer_umumiy.ps1"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Versiyani aniqlash
+        id: ver
+        shell: bash
+        run: echo "version=$(python -c 'import version; print(version.VERSION)')" >> "$GITHUB_OUTPUT"
+
+      - name: Bu versiya allaqachon chiqarilganmi?
+        id: exists
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.ver.outputs.version }}" > /dev/null 2>&1; then
+            echo "Release v${{ steps.ver.outputs.version }} bor - o'tkazib yuborildi (version.py ni oshiring)"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Kutubxonalar
+        if: steps.exists.outputs.skip != '1'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller==6.11.1
+
+      - name: Sintaksis tekshiruvi
+        if: steps.exists.outputs.skip != '1'
+        run: python -m compileall -q bot.py config.py explorer.py search.py screen.py sender.py shares.py hub_client.py big_upload.py preview.py updater.py zipper.py version.py
+
+      - name: FileBot.exe yig'ish
+        if: steps.exists.outputs.skip != '1'
+        run: >
+          pyinstaller --noconfirm --clean --onefile --noconsole --name FileBot
+          --hidden-import screen --hidden-import big_upload --hidden-import preview
+          --hidden-import updater --hidden-import zipper
+          bot.py
+
+      - name: Manba kodi arxivi (Python bilan ishlayotgan kompyuterlar uchun)
+        if: steps.exists.outputs.skip != '1'
+        shell: pwsh
+        run: |
+          $files = 'bot.py','config.py','explorer.py','search.py','screen.py','sender.py','shares.py',
+                   'hub_client.py','big_upload.py','preview.py','updater.py','zipper.py','version.py','requirements.txt'
+          Compress-Archive -Path $files -DestinationPath filebot-agent.zip -Force
+
+      - name: Umumiy o'rnatuvchi (FileBot_Setup.bat)
+        if: steps.exists.outputs.skip != '1'
+        run: python build_installer.py --umumiy
+
+      - name: Release chiqarish
+        if: steps.exists.outputs.skip != '1'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${{ steps.ver.outputs.version }}"
+          gh release create "v$V" dist/FileBot.exe filebot-agent.zip FileBot_Setup.bat \
+            --title "FileBot v$V" \
+            --notes "FileBot v$V. Kompyuterlar 6 soat ichida o'zi yangilanadi yoki Telegram'da /yangilash yozing."

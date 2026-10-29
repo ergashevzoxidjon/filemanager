@@ -1,0 +1,18 @@
+# Maxfiy sozlamalar - GitHub'ga chiqmasin
+config.env
+hub/config.php
+deploy.local.json
+sozlama.json
+
+# Ishlash davomida paydo bo'ladigan fayllar
+logs/
+data/
+hub/data/
+*.sqlite
+*.log
+__pycache__/
+*.pyc
+
+# Tayyor ornatuvchi (ichida hub manzili va royxatdan otish kodi bor)
+FileBot_Ornatish.bat
+FileBot_Setup.bat

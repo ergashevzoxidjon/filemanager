@@ -1,0 +1,6 @@
+aiogram==3.13.1
+mss==9.0.2
+python-dotenv==1.0.1
+telethon==1.36.0
+Pillow>=11.0.0
+PyMuPDF>=1.25.0

@@ -1,0 +1,8 @@
+---
+# cPanel "Git Version Control" -> "Deploy HEAD Commit" shu vazifalarni bajaradi.
+# Faqat hub fayllari saytga ko'chiriladi. config.php va data/ serverda qoladi, ustiga yozilmaydi.
+deployment:
+  tasks:
+    - export DEPLOYPATH=$HOME/public_html/filebot/
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp hub/hub.php hub/config.example.php hub/.htaccess $DEPLOYPATH
